@@ -16,7 +16,8 @@ const prefix = "!";
 client.on("message", function (msg) {
   if (msg.content.toLowerCase() === prefix + "help") {
     msg.reply(
-      prefix +
+      "List of theBot commands.\n" +
+        prefix +
         ": prefix for theBot commands\n" +
         prefix +
         'play "youtube link here": plays youtube audio\n' +
@@ -25,10 +26,12 @@ client.on("message", function (msg) {
     );
     return;
   }
+
   if (msg.content.toLowerCase() === prefix + "milk") {
     msg.reply("https://tenor.com/view/milk-milk-man-fresh-milk-gif-22164239");
     return;
   }
+
   if (msg.content.toLowerCase() === prefix + "play") {
     msg.reply("skadoosh");
     return;
@@ -38,7 +41,11 @@ client.on("message", function (msg) {
     return;
   } else if (msg.content.startsWith(prefix)) {
     {
-      msg.reply('Unknown command, please type "!help" for a list of commands');
+      msg.reply(
+        'Unknown command, please type "' +
+          prefix +
+          'help" for a list of commands'
+      );
       return;
     }
   }
