@@ -1,52 +1,65 @@
-require("dotenv").config();
+const Discord = require("discord.js");
+const dotenv = require("dotenv");
+const { REST } = require("@discordjs/rest");
+const { Routes } = require("@discord-api-types/v9");
+const fs = require("fs");
+const { Player } = require("discord-player");
 
-const { Client, Intents } = require("discord.js");
+dotenv.config();
+const TOKEN = process.env.TOKEN;
 
-const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+const LOAD_SLIASH = process.argv[2] == "load";
+const CLIENT_ID = process.env.CLIENT_ID;
+const GUILD_ID = process.env.GUILD_ID;
+
+const client = new Discord.Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.GUILD_VOICE_STATES,
+  ],
 });
 
-client.on("ready", function (e) {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
+client.slashcommands = new Discord.Collection();
+client.player = new Player(
+  (client = {
+    ytdlOptions: {
+      quality: "highestaudio",
+      highWaterMark: 1 << 25,
+    },
+  })
+);
 
-client.login(process.env.DISCORD_TOKEN);
+let commands = [];
 
-const prefix = "!";
-client.on("message", function (msg) {
-  if (msg.content.toLowerCase() === prefix + "help") {
-    msg.reply(
-      "List of theBot commands.\n" +
-        prefix +
-        ": prefix for theBot commands\n" +
-        prefix +
-        'play "youtube link here": plays youtube audio\n' +
-        prefix +
-        'image "image(s) name": finds an image based on your query.'
-    );
-    return;
-  }
+const slashFiles = fs
+  .readdirSync("./slash")
+  .filter((file) => file.endsWith(".js"));
+for (const file of slashFiles) {
+  const slashcmd = require(`./slash/${file}`);
+  client.slashcommands.set(slashcmd.data.name, slashcmd);
+  if (LOAD_SLIASH) commands.push(slashcmd.data.toJSON());
+}
 
-  if (msg.content.toLowerCase() === prefix + "milk") {
-    msg.reply("https://tenor.com/view/milk-milk-man-fresh-milk-gif-22164239");
-    return;
-  }
-
-  if (msg.content.toLowerCase() === prefix + "play") {
-    msg.reply("skadoosh");
-    return;
-  }
-  if (msg.content.toLowerCase() === prefix + "image") {
-    msg.reply("Feature under construction...");
-    return;
-  } else if (msg.content.startsWith(prefix)) {
-    {
-      msg.reply(
-        'Unknown command, please type "' +
-          prefix +
-          'help" for a list of commands'
-      );
-      return;
-    }
-  }
-});
+if (LOAD_SLIASH) {
+  const rest = new REST({ version: "9" }).setToken(TOKEN);
+  console.log("Loading Slash Commands...");
+  rest
+    .put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
+      body: { commands },
+    })
+    .then(() => {
+      console.log("Loaded Slash Commands!");
+      process.exit(0);
+    })
+    .catch((err) => {
+      if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+    });
+} else {
+  client.on("ready", () => {
+    console.log("Logged in as ${client.user.tag}");
+  });
+}
