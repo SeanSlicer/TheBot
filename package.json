@@ -20,7 +20,11 @@
   },
   "homepage": "https://github.com/SeanSlicer/TheBot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.13.0",
     "@discordjs/opus": "^0.7.0",
+    "@discordjs/rest": "^0.4.1",
+    "@discordjs/voice": "^0.9.0",
+    "discord-player": "^5.2.2",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "ffmpeg": "^0.0.4",

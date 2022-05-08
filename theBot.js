@@ -1,14 +1,14 @@
 const Discord = require("discord.js");
 const dotenv = require("dotenv");
 const { REST } = require("@discordjs/rest");
-const { Routes } = require("@discord-api-types/v9");
+const { Routes } = require("discord-api-types/v9");
 const fs = require("fs");
 const { Player } = require("discord-player");
 
 dotenv.config();
 const TOKEN = process.env.TOKEN;
 
-const LOAD_SLIASH = process.argv[2] == "load";
+const LOAD_SLASH = process.argv[2] == "load";
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
 
@@ -38,10 +38,9 @@ const slashFiles = fs
 for (const file of slashFiles) {
   const slashcmd = require(`./slash/${file}`);
   client.slashcommands.set(slashcmd.data.name, slashcmd);
-  if (LOAD_SLIASH) commands.push(slashcmd.data.toJSON());
+  if (LOAD_SLASH) commands.push(slashcmd.data.toJSON());
 }
-
-if (LOAD_SLIASH) {
+if (LOAD_SLASH) {
   const rest = new REST({ version: "9" }).setToken(TOKEN);
   console.log("Loading Slash Commands...");
   rest
@@ -60,6 +59,6 @@ if (LOAD_SLIASH) {
     });
 } else {
   client.on("ready", () => {
-    console.log("Logged in as ${client.user.tag}");
+    console.log("Logged in as" + client.user.tag);
   });
 }
